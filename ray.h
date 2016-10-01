@@ -13,6 +13,7 @@ float vecDot(vector3 first, vector3 second);
 vector3 vecCross(vector3 first, vector3 second);
 vector3 vecScale(float scale, vector3 vec);
 vector3 vecZero();
+vector3 vecNew(float a, float b, float c);
 
 typedef struct ray {
   vector3 origin;

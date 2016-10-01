@@ -4,33 +4,31 @@
 #include "camera.h"
 #include "ray.h"
 #include "raycast.h"
-#include "sphere.h"
+#include "triangle.h"
 #include "bmp.h"
-
-image bitmap;
-sphere* spheres;
-int numS = 1;
-ray* initRays;
+#include "main.h"
 
 int main() {
-  bitmap.width = 300;
-  bitmap.height = 200;
   bitmap.filename = "image.bmp";
-  bitmap.rgb = malloc(3*bitmap.width*bitmap.height);
-  int numr = bitmap.width * bitmap.height;
-  spheres = malloc(sizeof(sphere) * numS);
-  spheres[0].loc = vecZero();
-  spheres[0].rad = 75;
-  vector3 origin = vecZero();
+  bitmap.rgb = malloc(3 * numR);
+  triangles = malloc(sizeof(triangle) * numT);
+  triangles[0].a = vecZero();
+  triangles[0].b = vecNew(50, 100, 0);
+  triangles[0].c = vecNew(-50, 100, 0);
+  triangles[1].a = vecZero();
+  triangles[1].b = vecNew(-100, 0, 0);
+  triangles[1].c = vecNew(-50, -100, 0);
+  triangles[2].a = vecZero();
+  triangles[2].b = vecNew(50, -100, 0);
+  triangles[2].c = vecNew(100, 0, 0);
+  origin = vecZero();
   origin.z = -100;
-  camera cam;
-  cameraCreate(&cam, origin, &bitmap);
-  initRays = malloc(sizeof(ray) * numr);
-  cameraRays(&cam, initRays);
-  float* dists = malloc(sizeof(float)*numr*numS);
-  raycast(initRays, numr, spheres, numS, dists);
-  rayHit* hits = malloc(sizeof(rayHit) * numr);
-  findNearest(dists, numr, numS, hits);
-  colorFlat(hits, numr, bitmap);
+  initRays = malloc(sizeof(ray) * numR);
+  cameraRays();
+  dists = malloc(sizeof(float)*numR*numT);
+  raycast();
+  hits = malloc(sizeof(rayHit) * numR);
+  findNearest();
+  colorFlat();
   return write_bmp(bitmap);
 }

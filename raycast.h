@@ -9,8 +9,9 @@ typedef struct rayHit{
   float distSqr;
 }rayHit;
 
-void raycast(ray* rays, int numr, sphere* targets, int numt, float* dists);
+void raycast();
+float triangleHit(int rayI, int triI);
 float sphereHit(ray* r, sphere* s);
-void findNearest(float* dists, int numr, int numt, rayHit* hits);
+void findNearest();
 
 #endif

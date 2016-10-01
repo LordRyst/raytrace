@@ -8,6 +8,14 @@ vector3 vecZero() {
   return ret;
 }
 
+vector3 vecNew(float a, float b, float c) {
+  vector3 ret;
+  ret.x = a;
+  ret.y = b;
+  ret.z = c;
+  return ret;
+}
+
 vector3 vecSub(vector3 first, vector3 second) {
   vector3 ret;
   ret.x = first.x - second.x;
@@ -18,6 +26,12 @@ vector3 vecSub(vector3 first, vector3 second) {
 
 float vecDot(vector3 first, vector3 second) {
   float ans = first.x * second.x + first.y * second.y + first.z * second.z;
+}
+
+vector3 vecCross(vector3 first, vector3 second) {
+  return vecNew(first.y * second.z - first.z * second.y,
+		first.z * second.x - first.x * second.z,
+		first.x * second.y - first.y * second.x);
 }
 
 vector3 vecScale(float scale, vector3 vec) {

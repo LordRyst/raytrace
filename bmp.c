@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "image.h"
+#include "main.h"
 
 struct BMPHeader
 {
@@ -44,7 +45,7 @@ struct BMPHeader
                              are important */
 };
 
-int read_bmp(const char *filename, int *width, int *height, unsigned char *rgb)
+int read_bmp(const char *filename, int *w, int *h, unsigned char *rgb)
 {
     fprintf(stderr, "Sorry, reading of .bmp files isn't supported yet.\n");
     return(0);
@@ -53,8 +54,6 @@ int read_bmp(const char *filename, int *width, int *height, unsigned char *rgb)
 int write_bmp(image data)
 {
   char* filename = data.filename;
-  int width = data.width;
-  int height = data.height;
   char* rgb = (char*)data.rgb;
     int i, j, ipos;
     int bytesPerLine;

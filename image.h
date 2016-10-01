@@ -16,6 +16,6 @@ typedef struct image {
   char* filename;
 }image;
 
-void colorFlat(rayHit* hits, int numr, image bitmap);
+void colorFlat();
 
 #endif
