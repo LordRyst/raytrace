@@ -7,9 +7,9 @@
 #include "camera.h"
 #include "raycast.h"
 #define numT 3
-#define width 200
-#define height 200
-#define numR 200*200
+#define width 1000
+#define height 1000
+#define numR 1000*1000
 image bitmap;
 triangle* triangles;
 ray* initRays;

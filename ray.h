@@ -7,6 +7,11 @@ typedef struct vector3 {
   float z;
 }vector3;
 
+typedef struct vector2 {
+  float a;
+  float b;
+}vector2;
+
 vector3 vecAdd(vector3 first, vector3 second);
 vector3 vecSub(vector3 first, vector3 second);
 float vecDot(vector3 first, vector3 second);

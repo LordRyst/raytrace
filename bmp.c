@@ -66,7 +66,7 @@ int write_bmp(image data)
 
     bytesPerLine = (3 * (width + 1) / 4) * 4;
 
-    strcpy(bmph.bfType, "BM");
+    strncpy(bmph.bfType, "BM", 2);
     bmph.bfOffBits = 54;
     bmph.bfSize = bmph.bfOffBits + bytesPerLine * height;
     bmph.bfReserved = 0;

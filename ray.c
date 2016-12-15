@@ -25,7 +25,7 @@ vector3 vecSub(vector3 first, vector3 second) {
 }
 
 float vecDot(vector3 first, vector3 second) {
-  float ans = first.x * second.x + first.y * second.y + first.z * second.z;
+  return first.x * second.x + first.y * second.y + first.z * second.z;
 }
 
 vector3 vecCross(vector3 first, vector3 second) {
@@ -39,4 +39,5 @@ vector3 vecScale(float scale, vector3 vec) {
   ret.x = vec.x * scale;
   ret.y = vec.y * scale;
   ret.z = vec.z * scale;
+  return ret;
 }

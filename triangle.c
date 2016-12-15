@@ -1,63 +1,138 @@
 #include "triangle.h"
-#include "ray.h"
+#include <math.h>
+#include <stdlib.h>
 
-float rayboxIntersect(ray r1, vector3 mins, vector3 maxs) {
-  floattx1 = (mins.x - r1.origin.x)*r1.direction.x;
-  floattx2 = (maxs.x - r1.origin.x)*r1.direction.x;
-  floattmin = min(tx1, tx2);
-  floattmax = max(tx1, tx2);
-  floatty1 = (mins.y - r1.origin.y) * r1.direction.y;
-  floatty2 = (maxs.y - r1.origin.y) * r1.direction.y;
-  tmin = max(tmin, min(ty1, ty2));
-  tmax = min(tmax, max(ty1, ty2));
-  floattz1 = (mins.z - r1.origin.z) * r1.direction.z;
-  floattz2 = (maxs.z - r1.origin.z) * r1.direction.z;
-  tmin = max(tmin, min(tz1, tz2));
-  tmax = min(tmax, max(tz1, tz2));
-  if (tmax >= tmin) {
-    //intersection
-    if (tmax >= 0) {
-      //origin inside box.
-      return tmax;
+void triangleSplit12(vec3 l, vec3 r1, vec3 r2, char dir, float center, vector* less, vector* more) {
+  float a = l[dir];
+  float b = r1[dir];
+  float c = r2[dir];
+  vec3 ab = r1 - l;
+  vec3 ac = r2 - l;
+  float bx = ab[dir];
+  float cx = ac[dir];
+  //a + bx * l = center
+  //center + - a = bx * l
+  //l == (center - a ) / bx
+  float l1 = (center - a) / bx;
+  float l2 = (center - a) / cx;
+  vec3 dv;
+  dec3 ev;
+  dv[0] = l[0] + bx[0] * l1;
+  dv[1] = l[1] + bx[1] * l1;
+  dv[2] = l[2] + bx[2] * l1;
+  ev[0] = l[0] + cx[0] * l2;
+  ev[1] = l[1] + cx[1] * l2;
+  ev[2] = l[2] + cx[2] * l2;
+  triangle left;
+  left[0] = l;
+  left[1] = dv;
+  left[2] = ev;
+  triangle right1;
+  triangle right2;
+  if(b > c) {
+    right1[0] = dv;
+    right1[1] = r1;
+    right1[2] = ev;
+    right2[0] = ev;
+    right2[1] = r1;
+    right2[2] = r2;
+  } else {
+    right1[0] = dv;
+    right1[1] = r1;
+    right1[2] = r2;
+    right2[0] = dv;
+    right2[1] = ev;
+    right2[2] = r2;
+  }
+  vectorAdd(less, &left);
+  vectorAdd(more, &right1);
+  vectorAdd(more, &right2);
+}
+
+void triangleSplit(vector* triangles, char dir, float center, vector* less, vector* more) {
+  if (ax >= center) {
+    if (bx >= center) {
+      if (cx >= center) {
+	vectorAdd(more, &cur);
+      } else {
+	triangleSplit12(cur.c, cur.a, cur.b, c, center, less, more);
+      }
     } else {
-      //origin outside box.
-      return 0 - tmax;
+      if (cx >= center) {
+	triangleSplit12(cur.b, cur.a, cur.c, c, center, less, more);
+      } else {
+	triangleSplit21(cur.b, cur.c, cur.a, c, center, less, more);
+      }
     }
   } else {
-    return -INFINITY;
-  }
-}
-
-void triangleClip(int triI, vector3 mins, vector3 maxs) {
-  ray r1;
-  r1.origin = triangles[triI].a.origin;
-  r1.direction = vecNormal(vecSub(triangles[triI].b,
-				  triangles[triI].a));
-  float dist = rayboxIntersect(r1, mins, maxs);
-  if (dist >= 0) {
-    //intersect, started inside box;
-    //set up r2
-    //dist2 = rayboxIntersect(r2, mins, maxs);
-    if (dist2 >= 0) {
-      
-    }
-  }
-}
-
-void triangleClip(int triI, triangles* tris, vector3 mins, vector3 maxs) {
-  //corners have largest area, followed by edges, followed by center.
-  //profile to see if we should set center as default,
-  //because these triangles will be from an only slightly bigger box.
-  char class1 = triangleClass(triI, tris, mins, maxs);
-  //class2, class3
-  if (class1 == INSIDE) {
-    if (class2 == INSIDE) {
-      if (class3 == INSIDE) {
-	return;//All inside, nothing to clip.
-      } else if (class3 % 2 == 1) {
-	//edge, split into quad.
-	
+    if (bx >= center) {
+      if (cx >= center) {
+	triangleSplit12(cur.a, cur.b, cur.c, c, center, less, more);
+      } else {
+	triangleSplit21(cur.a, cur.c, cur.b, c, center, less, more);
+      }
+    } else {
+      if (cx >= center) {
+	triangleSplit21(cur.a, cur.b, cur.c, c, center, less, more);
+      } else {
+	vectorAdd(less, &cur);
       }
     }
   }
+}
+
+vector* triangleOct(vector* triangles, vector3* center) {
+  vector* buckets = 0;
+  vectorNew(buckets, 8, sizeof(triangle));
+  vector* left = 0;
+  vectorNew(left, triangles->next, sizeof(triangle));
+  vector* right = 0;
+  vectorNew(right, triangles->next, sizeof(triangle));
+  triangle* data = (triangle*)triangles->data;
+  triangleSplit(triangles, 0, center, left, right);
+  vector* tl = 0;
+  vectorNew(tl, left->next, sizeof(triangle));
+  vector* bl = 0;
+  vectorNew(bl, left->next, sizeof(triangle));
+  triangleSplit(left, 1, center, bl, tl);
+  free(left);
+  vector* tr = 0;
+  vectorNew(tr, right->next, sizeof(triangle));
+  vector* br = 0;
+  vectorNew(br, right->next, sizeof(triangle));
+  triangleSplit(right, 1, center, br, tr);
+  free(right);
+  triangleSplit(tl, 2, center, &buckets[4], &buckets[0]);
+  free(tl);
+  triangleSplit(bl, 2, center, &buckets[6], &buckets[2]);
+  free(bl);
+  triangleSplit(tr, 2, center, &buckets[5], &buckets[1]);
+  free(tr);
+  triangleSplit(br, 2, center, &buckets[7], &buckets[3]);
+  }
+  free(br);
+  return buckets;
+}
+
+float triangleHit(ray* rayI, triangle* triI) {
+  vector3 e1 = vecSub(triI->b, triI->a);
+  vector3 e2 = vecSub(triI->c, triI->a);
+
+  vector3 h = vecCross(rayI->direction, e2);
+  float g = vecDot(e1, h);
+  if (g == 0) {
+    return INFINITY;
+  }
+  float f = 1 / g;
+  vector3 s = vecSub(rayI->origin, triI->a);
+  float u = f * vecDot(s, h);
+  if (u < 0 || u > 1.0) {
+    return INFINITY;
+  }
+  vector3 q = vecCross(s, e1);
+  float v = f * vecDot(rayI->direction, q);
+  if (v < 0 || u + v > 1.0) {
+    return INFINITY;
+  }
+  return f * vecDot(e2, q);
 }
